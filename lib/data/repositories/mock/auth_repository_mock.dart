@@ -1,72 +1,61 @@
-// lib/data/repositories/mock/auth_repository_mock.dart
-
-import 'package:flutter_getx/core/errors/exceptions.dart';
-import 'package:flutter_getx/data/repositories/auth_repository_base.dart';
 import 'package:get/get.dart';
+import '../../../core/errors/exceptions.dart';
 import '../../../core/services/storage_service.dart';
 import '../../models/user_model.dart';
+import '../auth_repository_base.dart';
 
-class AuthRepositoryMock extends AuthRepositoryBase {
-  // Fake user data
+class AuthRepositoryMock implements AuthRepositoryBase {
   static const _fakeUser = UserModel(
     id: 1,
-    name: 'Budi Santoso',
-    email: 'budi@mail.com',
-    phone: '08123456789',
+    username: 'emilys',
+    firstName: 'Emily',
+    lastName: 'Johnson',
+    email: 'emily.johnson@x.dummyjson.com',
+    phone: '+81 965-431-3024',
+    gender: 'female',
+    image: 'https://dummyjson.com/icon/emilys/128',
   );
 
-  static const _fakeToken = 'fake-token-mock-12345';
-
-  // Kredensial yang "valid" untuk testing
-  static const _validEmail = 'budi@mail.com';
-  static const _validPassword = '12345678';
+  static const _fakeAccessToken = 'fake-access-token-mock-12345';
+  static const _fakeRefreshToken = 'fake-refresh-token-mock-12345';
+  static const _validUsername = 'emilys';
+  static const _validPassword = 'emilyspass';
 
   @override
   Future<AuthResponse?> login({
-    required String email,
+    required String username,
     required String password,
   }) async {
-    // Simulasi network delay
     await Future.delayed(const Duration(seconds: 1));
 
-    // Simulasi validasi kredensial
-    if (email != _validEmail || password != _validPassword) {
-      throw ServerException(
-        message: 'Email atau password salah',
-        statusCode: 401,
-      );
+    if (username != _validUsername || password != _validPassword) {
+      throw ServerException(message: 'Invalid credentials', statusCode: 400);
     }
 
-    // Simpan ke storage seperti implementasi asli
     final storage = Get.find<StorageService>();
-    await storage.saveToken(_fakeToken);
+    await storage.saveToken(_fakeAccessToken);
+    await storage.saveRefreshToken(_fakeRefreshToken);
     await storage.saveUser(_fakeUser.toJson());
 
-    return AuthResponse(token: _fakeToken, user: _fakeUser);
+    return const AuthResponse(
+      accessToken: _fakeAccessToken,
+      refreshToken: _fakeRefreshToken,
+      user: _fakeUser,
+    );
   }
 
   @override
-  Future<AuthResponse?> register({
-    required String name,
-    required String email,
-    required String password,
-  }) async {
-    await Future.delayed(const Duration(seconds: 1));
-
-    final newUser = UserModel(id: 2, name: name, email: email);
-
-    final storage = Get.find<StorageService>();
-    await storage.saveToken(_fakeToken);
-    await storage.saveUser(newUser.toJson());
-
-    return AuthResponse(token: _fakeToken, user: newUser);
+  Future<UserModel?> getMe() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    return _fakeUser;
   }
 
   @override
   Future<void> logout() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 300));
     final storage = Get.find<StorageService>();
     await storage.removeToken();
+    await storage.removeRefreshToken();
     await storage.removeUser();
   }
 }

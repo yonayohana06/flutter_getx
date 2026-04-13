@@ -1,7 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_dimensions.dart';
 import '../controllers/dashboard_controller.dart';
+import 'product_card.dart';
 
 class HomeTab extends GetView<DashboardController> {
   const HomeTab({super.key});
@@ -9,66 +12,77 @@ class HomeTab extends GetView<DashboardController> {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: controller.fetchProfile,
-      child: ListView(
-        padding: const EdgeInsets.all(AppDimensions.md),
-        children: [
-          // ── Greeting Card ──────────────────────────────
-          Obx(() => Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppDimensions.md),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 28,
-                        backgroundImage: controller.currentUser.value?.avatar != null
-                            ? NetworkImage(controller.currentUser.value!.avatar!)
-                            : null,
-                        child: controller.currentUser.value?.avatar == null
-                            ? Text(
-                                controller.currentUser.value?.name
-                                        .substring(0, 1)
-                                        .toUpperCase() ??
-                                    'U',
-                                style: const TextStyle(fontSize: 24),
-                              )
-                            : null,
-                      ),
-                      const SizedBox(width: AppDimensions.md),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Hello, ${controller.currentUser.value?.name ?? 'User'} 👋',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          Text(
-                            controller.currentUser.value?.email ?? '',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+      onRefresh: () => controller.fetchProducts(refresh: true),
+      child: CustomScrollView(
+        slivers: [
+          // ── Greeting ──────────────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(AppDimensions.md),
+              child: Obx(
+                () => _GreetingCard(
+                  name: controller.currentUser.value?.firstName ?? 'User',
+                  image: controller.currentUser.value?.image,
                 ),
-              )),
-          const SizedBox(height: AppDimensions.lg),
+              ),
+            ),
+          ),
 
-          // ── Placeholder Content ────────────────────────
-          Text('Quick Actions', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: AppDimensions.sm),
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisSpacing: AppDimensions.md,
-            mainAxisSpacing: AppDimensions.md,
-            children: const [
-              _QuickActionCard(icon: Icons.bar_chart, label: 'Analytics'),
-              _QuickActionCard(icon: Icons.notifications_outlined, label: 'Notifications'),
-              _QuickActionCard(icon: Icons.settings_outlined, label: 'Settings'),
-              _QuickActionCard(icon: Icons.help_outline, label: 'Help'),
-            ],
+          // ── Title ─────────────────────────────────────────
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppDimensions.md,
+              vertical: AppDimensions.sm,
+            ),
+            sliver: SliverToBoxAdapter(
+              child: Text(
+                'Products',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+          ),
+
+          // ── Product Grid ──────────────────────────────────
+          Obx(() {
+            if (controller.isLoading.value && controller.products.isEmpty) {
+              return const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator.adaptive()),
+              );
+            }
+            return SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
+              sliver: SliverGrid(
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  if (index == controller.products.length) {
+                    return Obx(
+                      () => controller.isLoadingMore.value
+                          ? const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(AppDimensions.md),
+                                child: CircularProgressIndicator.adaptive(),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    );
+                  }
+                  // trigger load more
+                  if (index == controller.products.length - 3) {
+                    controller.loadMore();
+                  }
+                  return ProductCard(product: controller.products[index]);
+                }, childCount: controller.products.length + 1),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: AppDimensions.sm,
+                  mainAxisSpacing: AppDimensions.sm,
+                  childAspectRatio: 0.72,
+                ),
+              ),
+            );
+          }),
+
+          const SliverPadding(
+            padding: EdgeInsets.only(bottom: AppDimensions.lg),
           ),
         ],
       ),
@@ -76,24 +90,79 @@ class HomeTab extends GetView<DashboardController> {
   }
 }
 
-class _QuickActionCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
+class _GreetingCard extends StatelessWidget {
+  final String name;
+  final String? image;
 
-  const _QuickActionCard({required this.icon, required this.label});
+  const _GreetingCard({required this.name, this.image});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: InkWell(
-        onTap: () {},
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      child: Padding(
+        padding: const EdgeInsets.all(AppDimensions.md),
+        child: Row(
           children: [
-            Icon(icon, size: AppDimensions.iconLg),
-            const SizedBox(height: AppDimensions.sm),
-            Text(label, style: Theme.of(context).textTheme.bodyMedium),
+            // CircleAvatar(
+            //   radius: 28,
+            //   backgroundImage: image != null ? NetworkImage(image!) : null,
+            //   backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+            //   child: image == null
+            //       ? Text(
+            //           name.substring(0, 1).toUpperCase(),
+            //           style: const TextStyle(
+            //             fontSize: 22,
+            //             color: AppColors.primary,
+            //             fontWeight: FontWeight.bold,
+            //           ),
+            //         )
+            //       : null,
+            // ),
+            CircleAvatar(
+              radius: 28,
+              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+              child: image != null
+                  ? ClipOval(
+                      child: CachedNetworkImage(
+                        imageUrl: image!,
+                        width: 56,
+                        height: 56,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) =>
+                            const CircularProgressIndicator.adaptive(),
+                        errorWidget: (context, url, error) => Text(
+                          name.substring(0, 1).toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 22,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Text(
+                      name.substring(0, 1).toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 22,
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+            ),
+            const SizedBox(width: AppDimensions.md),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Hello, $name 👋',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                Text(
+                  'Browse our products',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
           ],
         ),
       ),

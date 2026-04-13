@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -8,7 +11,7 @@ class LoggingInterceptor extends Interceptor {
       print('┌─────────── REQUEST ───────────');
       print('│ ${options.method} ${options.uri}');
       print('│ Headers: ${options.headers}');
-      if (options.data != null) print('│ Body: ${options.data}');
+      if (options.data != null) log('│ Body: ${options.data}');
       print('└───────────────────────────────');
     }
     handler.next(options);
@@ -17,9 +20,13 @@ class LoggingInterceptor extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     if (kDebugMode) {
+      final data = jsonEncode(response.data);
       print('┌─────────── RESPONSE ──────────');
       print('│ Status: ${response.statusCode}');
-      print('│ Data: ${response.data}');
+      log(
+        '│ Data:\n\t $data\n'
+        '└───────────────────────────────',
+      );
       print('└───────────────────────────────');
     }
     handler.next(response);
@@ -30,7 +37,7 @@ class LoggingInterceptor extends Interceptor {
     if (kDebugMode) {
       print('┌─────────── ERROR ─────────────');
       print('│ ${err.message}');
-      print('│ Response: ${err.response?.data}');
+      log('│ Response: ${err.response?.data}');
       print('└───────────────────────────────');
     }
     handler.next(err);

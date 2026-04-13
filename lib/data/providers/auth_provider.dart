@@ -3,27 +3,18 @@ import '../../core/constants/api_constants.dart';
 import '../../core/network/api_client.dart';
 
 class AuthProvider {
-  Future<Response> login({
-    required String email,
-    required String password,
-  }) =>
-      ApiClient.post(
-        ApiConstants.login,
-        data: {'email': email, 'password': password},
-      );
+  // DummyJSON pakai username, bukan email
+  Future<Response> login({required String username, required String password}) {
+    return ApiClient.post(
+      ApiConstants.login,
+      data: {'username': username, 'password': password, 'expiresInMins': 60},
+    );
+  }
 
-  Future<Response> register({
-    required String name,
-    required String email,
-    required String password,
-  }) =>
-      ApiClient.post(
-        ApiConstants.register,
-        data: {'name': name, 'email': email, 'password': password},
-      );
+  Future<Response> getMe() => ApiClient.get(ApiConstants.me);
 
-  Future<Response> logout() => ApiClient.post(ApiConstants.logout);
-
-  Future<Response> refreshToken(String refreshToken) =>
-      ApiClient.post(ApiConstants.refresh, data: {'refresh_token': refreshToken});
+  Future<Response> refreshToken(String refreshToken) => ApiClient.post(
+    ApiConstants.refresh,
+    data: {'refreshToken': refreshToken, 'expiresInMins': 60},
+  );
 }

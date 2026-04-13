@@ -2,6 +2,8 @@
 
 Boilerplate Flutter + GetX yang scalable dan production-ready untuk project jangka panjang.
 
+> **Flutter 3.41.2 | Dart 3.11.0**
+
 ---
 
 ## 📁 Struktur Folder
@@ -24,7 +26,7 @@ lib/
 ├── data/                       # Data layer (Repository Pattern)
 │   ├── models/                 # Data models (fromJson / toJson)
 │   ├── providers/              # Raw API calls (Dio)
-│   └── repositories/          # Business logic, transform data
+│   └── repositories/           # Business logic, transform data
 │
 ├── modules/                    # Feature-first modules
 │   ├── auth/

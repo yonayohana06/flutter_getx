@@ -1,45 +1,89 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_getx/core/constants/app_colors.dart';
 import 'package:get/get.dart';
 import '../../../core/errors/exceptions.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/utils/helpers.dart';
+import '../../../data/models/product_model.dart';
 import '../../../data/models/user_model.dart';
-import '../../../data/repositories/user_repository.dart';
+import '../../../data/repositories/product_repository.dart';
 import '../../../routes/app_routes.dart';
 
 class DashboardController extends GetxController {
-  final UserRepository _userRepository;
+  final ProductRepository _productRepository;
 
-  DashboardController(this._userRepository);
+  DashboardController(this._productRepository);
 
-  // ── State ──────────────────────────────────────────────────
   final isLoading = false.obs;
+  final isLoadingMore = false.obs;
   final currentUser = Rx<UserModel?>(null);
   final selectedIndex = 0.obs;
+  final products = <ProductModel>[].obs;
+
+  int _skip = 0;
+  static const int _limit = 10;
+  bool _hasMore = true;
 
   @override
   void onInit() {
     super.onInit();
     _loadUser();
+    fetchProducts();
   }
 
   void _loadUser() {
-    final authService = Get.find<AuthService>();
-    currentUser.value = authService.currentUser.value;
+    currentUser.value = Get.find<AuthService>().currentUser.value;
   }
 
-  Future<void> fetchProfile() async {
+  Future<void> fetchProducts({bool refresh = false}) async {
+    if (refresh) {
+      _skip = 0;
+      _hasMore = true;
+      products.clear();
+    }
+    if (!_hasMore || isLoading.value) return;
+
     isLoading.value = true;
     try {
-      final user = await _userRepository.getProfile();
-      currentUser.value = user;
-    } on ServerException catch (e) {
-      AppHelpers.showError(e.message);
-    } on NetworkException {
-      AppHelpers.showError('No internet connection');
+      final response = await _productRepository.getProducts(
+        limit: _limit,
+        skip: _skip,
+      );
+      products.addAll(response.products);
+      _skip += response.products.length;
+      _hasMore = response.hasMore;
+    } on Exception catch (e) {
+      final message = switch (e) {
+        ServerException() => (e).message,
+        NetworkException() => (e).message,
+        _ => 'Something went wrong',
+      };
+      AppHelpers.showError(message);
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> loadMore() async {
+    if (!_hasMore || isLoadingMore.value) return;
+
+    isLoadingMore.value = true;
+    try {
+      final response = await _productRepository.getProducts(
+        limit: _limit,
+        skip: _skip,
+      );
+      products.addAll(response.products);
+      _skip += response.products.length;
+      _hasMore = response.hasMore;
+    } on Exception catch (e) {
+      final message = switch (e) {
+        ServerException() => (e).message,
+        NetworkException() => (e).message,
+        _ => 'Something went wrong',
+      };
+      AppHelpers.showError(message);
+    } finally {
+      isLoadingMore.value = false;
     }
   }
 
@@ -50,9 +94,8 @@ class DashboardController extends GetxController {
       title: 'Logout',
       message: 'Are you sure you want to logout?',
       confirmText: 'Logout',
-      cancelText: 'Cancel',
       icon: Icons.logout_rounded,
-      confirmColor: AppColors.error,
+      confirmColor: const Color(0xFFE53935),
     );
     if (confirmed == true) {
       await Get.find<AuthService>().logout();

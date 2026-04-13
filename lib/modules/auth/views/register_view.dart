@@ -53,59 +53,63 @@ class RegisterView extends GetView<AuthController> {
                 const SizedBox(height: AppDimensions.md),
 
                 // ── Password ────────────────────────────────
-                Obx(() => AuthTextField(
-                      controller: controller.passwordCtrl,
-                      label: 'Password',
-                      hint: 'Min. 8 characters',
-                      prefixIcon: Icons.lock_outline,
-                      obscureText: controller.isPasswordHidden.value,
-                      validator: controller.validatePassword,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          controller.isPasswordHidden.value
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                        ),
-                        onPressed: controller.togglePassword,
+                Obx(
+                  () => AuthTextField(
+                    controller: controller.passwordCtrl,
+                    label: 'Password',
+                    hint: 'Min. 8 characters',
+                    prefixIcon: Icons.lock_outline,
+                    obscureText: controller.isPasswordHidden.value,
+                    validator: controller.validatePassword,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        controller.isPasswordHidden.value
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
                       ),
-                    )),
+                      onPressed: controller.togglePassword,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: AppDimensions.md),
 
                 // ── Confirm Password ────────────────────────
-                Obx(() => AuthTextField(
-                      controller: controller.confirmCtrl,
-                      label: 'Confirm Password',
-                      hint: 'Re-enter your password',
-                      prefixIcon: Icons.lock_outline,
-                      obscureText: controller.isConfirmHidden.value,
-                      validator: controller.validateConfirm,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          controller.isConfirmHidden.value
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                        ),
-                        onPressed: controller.toggleConfirmPassword,
+                Obx(
+                  () => AuthTextField(
+                    controller: controller.confirmCtrl,
+                    label: 'Confirm Password',
+                    hint: 'Re-enter your password',
+                    prefixIcon: Icons.lock_outline,
+                    obscureText: controller.isConfirmHidden.value,
+                    validator: controller.validateConfirm,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        controller.isConfirmHidden.value
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
                       ),
-                    )),
+                      onPressed: controller.toggleConfirmPassword,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: AppDimensions.xl),
 
                 // ── Register Button ─────────────────────────
-                Obx(() => ElevatedButton(
-                      onPressed: controller.isLoading.value
-                          ? null
-                          : controller.register,
-                      child: controller.isLoading.value
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Text('Create Account'),
-                    )),
+                // Obx(() => ElevatedButton(
+                //       onPressed: controller.isLoading.value
+                //           ? null
+                //           : controller.register,
+                //       child: controller.isLoading.value
+                //           ? const SizedBox(
+                //               height: 20,
+                //               width: 20,
+                //               child: CircularProgressIndicator(
+                //                 color: Colors.white,
+                //                 strokeWidth: 2,
+                //               ),
+                //             )
+                //           : const Text('Create Account'),
+                //     )),
                 const SizedBox(height: AppDimensions.lg),
 
                 // ── Login Link ──────────────────────────────

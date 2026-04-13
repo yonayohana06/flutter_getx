@@ -79,7 +79,7 @@ class AppTheme {
     cardTheme: CardThemeData(
       color: AppColors.white,
       elevation: 2,
-      shadowColor: AppColors.black.withAlpha(18),
+      shadowColor: AppColors.black.withValues(alpha: 0.08),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
       ),
@@ -144,6 +144,11 @@ class AppTheme {
         borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
       ),
       hintStyle: const TextStyle(color: AppColors.grey500),
+    ),
+    cardTheme: CardThemeData(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+      ),
     ),
   );
 }

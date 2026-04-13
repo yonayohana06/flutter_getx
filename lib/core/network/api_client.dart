@@ -18,8 +18,12 @@ class ApiClient {
     final dio = Dio(
       BaseOptions(
         baseUrl: ApiConstants.baseUrl,
-        connectTimeout: const Duration(milliseconds: ApiConstants.connectTimeout),
-        receiveTimeout: const Duration(milliseconds: ApiConstants.receiveTimeout),
+        connectTimeout: const Duration(
+          milliseconds: ApiConstants.connectTimeout,
+        ),
+        receiveTimeout: const Duration(
+          milliseconds: ApiConstants.receiveTimeout,
+        ),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -31,6 +35,16 @@ class ApiClient {
       AuthInterceptor(Get.find<StorageService>()),
       ErrorInterceptor(),
       LoggingInterceptor(),
+      // PrettyDioLogger(
+      //   requestHeader: true,
+      //   requestBody: true,
+      //   responseBody: true,
+      //   responseHeader: false,
+      //   error: true,
+      //   compact: true,
+      //   enabled: kDebugMode,
+      //   maxWidth: 90,
+      // ),
     ]);
 
     return dio;
@@ -41,34 +55,23 @@ class ApiClient {
     String path, {
     Map<String, dynamic>? queryParameters,
     Options? options,
-  }) =>
-      instance.get(path, queryParameters: queryParameters, options: options);
+  }) => instance.get(path, queryParameters: queryParameters, options: options);
 
-  static Future<Response> post(
-    String path, {
-    dynamic data,
-    Options? options,
-  }) =>
+  static Future<Response> post(String path, {dynamic data, Options? options}) =>
       instance.post(path, data: data, options: options);
 
-  static Future<Response> put(
-    String path, {
-    dynamic data,
-    Options? options,
-  }) =>
+  static Future<Response> put(String path, {dynamic data, Options? options}) =>
       instance.put(path, data: data, options: options);
 
   static Future<Response> patch(
     String path, {
     dynamic data,
     Options? options,
-  }) =>
-      instance.patch(path, data: data, options: options);
+  }) => instance.patch(path, data: data, options: options);
 
   static Future<Response> delete(
     String path, {
     dynamic data,
     Options? options,
-  }) =>
-      instance.delete(path, data: data, options: options);
+  }) => instance.delete(path, data: data, options: options);
 }

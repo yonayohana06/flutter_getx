@@ -1,59 +1,67 @@
 class UserModel {
   final int id;
-  final String name;
+  final String username;
+  final String firstName;
+  final String lastName;
   final String email;
-  final String? avatar;
+  final String? image;
   final String? phone;
-  final DateTime? createdAt;
+  final String? gender;
 
   const UserModel({
     required this.id,
-    required this.name,
+    required this.username,
+    required this.firstName,
+    required this.lastName,
     required this.email,
-    this.avatar,
+    this.image,
     this.phone,
-    this.createdAt,
+    this.gender,
   });
 
+  String get fullName => '$firstName $lastName';
+
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
-        id: json['id'] as int,
-        name: json['name'] as String,
-        email: json['email'] as String,
-        avatar: json['avatar'] as String?,
-        phone: json['phone'] as String?,
-        createdAt: json['created_at'] != null
-            ? DateTime.tryParse(json['created_at'] as String)
-            : null,
-      );
+    id: json['id'] as int,
+    username: json['username'] as String? ?? '',
+    firstName: json['firstName'] as String? ?? '',
+    lastName: json['lastName'] as String? ?? '',
+    email: json['email'] as String? ?? '',
+    image: json['image'] as String?,
+    phone: json['phone'] as String?,
+    gender: json['gender'] as String?,
+  );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'email': email,
-        'avatar': avatar,
-        'phone': phone,
-        'created_at': createdAt?.toIso8601String(),
-      };
+    'id': id,
+    'username': username,
+    'firstName': firstName,
+    'lastName': lastName,
+    'email': email,
+    'image': image,
+    'phone': phone,
+    'gender': gender,
+  };
 
   UserModel copyWith({
     int? id,
-    String? name,
+    String? username,
+    String? firstName,
+    String? lastName,
     String? email,
-    String? avatar,
+    String? image,
     String? phone,
-    DateTime? createdAt,
-  }) =>
-      UserModel(
-        id: id ?? this.id,
-        name: name ?? this.name,
-        email: email ?? this.email,
-        avatar: avatar ?? this.avatar,
-        phone: phone ?? this.phone,
-        createdAt: createdAt ?? this.createdAt,
-      );
-
-  @override
-  String toString() => 'UserModel(id: $id, name: $name, email: $email)';
+    String? gender,
+  }) => UserModel(
+    id: id ?? this.id,
+    username: username ?? this.username,
+    firstName: firstName ?? this.firstName,
+    lastName: lastName ?? this.lastName,
+    email: email ?? this.email,
+    image: image ?? this.image,
+    phone: phone ?? this.phone,
+    gender: gender ?? this.gender,
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -64,14 +72,22 @@ class UserModel {
   int get hashCode => id.hashCode;
 }
 
+// DummyJSON login response structure:
+// { id, username, email, firstName, lastName, gender, image, accessToken, refreshToken }
 class AuthResponse {
-  final String token;
+  final String accessToken;
+  final String refreshToken;
   final UserModel user;
 
-  const AuthResponse({required this.token, required this.user});
+  const AuthResponse({
+    required this.accessToken,
+    required this.refreshToken,
+    required this.user,
+  });
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) => AuthResponse(
-        token: json['token'] as String,
-        user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
-      );
+    accessToken: json['accessToken'] as String,
+    refreshToken: json['refreshToken'] as String,
+    user: UserModel.fromJson(json),
+  );
 }
