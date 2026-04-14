@@ -17,6 +17,7 @@ class AppTheme {
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.white,
       elevation: 0,
+      scrolledUnderElevation: 0,
       centerTitle: true,
       iconTheme: IconThemeData(color: AppColors.grey900),
       titleTextStyle: TextStyle(
@@ -119,6 +120,7 @@ class AppTheme {
       backgroundColor: Color(0xFF1E1E1E),
       elevation: 0,
       centerTitle: true,
+      scrolledUnderElevation: 0,
       iconTheme: IconThemeData(color: AppColors.white),
       titleTextStyle: TextStyle(
         color: AppColors.white,
@@ -160,8 +162,7 @@ class AppTheme {
       ),
     ),
     navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: AppColors.bgDark,
-
+      backgroundColor: Color(0xFF1E1E1E),
       labelTextStyle: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
           return TextStyle(color: AppColors.white, fontWeight: FontWeight.w600);
