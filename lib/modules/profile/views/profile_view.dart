@@ -1,10 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_getx/data/models/user_model.dart';
 import 'package:get/get.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_dimensions.dart';
 import '../controllers/profile_controller.dart';
+import '../../../data/models/user_model.dart';
 
 class ProfileView extends GetView<ProfileController> {
   const ProfileView({super.key});
@@ -26,59 +26,112 @@ class ProfileView extends GetView<ProfileController> {
         if (user == null) {
           return const Center(child: CircularProgressIndicator.adaptive());
         }
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              // ── Header ──────────────────────────────────────
-              _ProfileHeader(user: user),
+        return RefreshIndicator(
+          onRefresh: controller.fetchMe,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              children: [
+                _ProfileHeader(user: user),
+                Padding(
+                  padding: const EdgeInsets.all(AppDimensions.md),
+                  child: Column(
+                    children: [
+                      // ── Account ────────────────────────────
+                      _InfoCard(
+                        title: 'Account',
+                        icon: Icons.person_outline,
+                        items: [
+                          _InfoItem(label: 'Full Name', value: user.fullName),
+                          _InfoItem(
+                            label: 'Username',
+                            value: '@${user.username}',
+                          ),
+                          _InfoItem(label: 'Email', value: user.email),
+                          _InfoItem(
+                            label: 'Role',
+                            value: _capitalize(user.role ?? '-'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppDimensions.md),
 
-              // ── Info Cards ───────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.all(AppDimensions.md),
-                child: Column(
-                  children: [
-                    _InfoCard(
-                      title: 'Account Info',
-                      items: [
-                        _InfoItem(
-                          icon: Icons.person_outline,
-                          label: 'Full Name',
-                          value: user.fullName,
-                        ),
-                        _InfoItem(
-                          icon: Icons.alternate_email,
-                          label: 'Username',
-                          value: '@${user.username}',
-                        ),
-                        _InfoItem(
-                          icon: Icons.email_outlined,
-                          label: 'Email',
-                          value: user.email,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppDimensions.md),
-                    _InfoCard(
-                      title: 'Personal Info',
-                      items: [
-                        _InfoItem(
-                          icon: Icons.phone_outlined,
-                          label: 'Phone',
-                          value: user.phone ?? '-',
-                        ),
-                        _InfoItem(
-                          icon: Icons.people_outline,
-                          label: 'Gender',
-                          value: user.gender != null
-                              ? _capitalize(user.gender!)
-                              : '-',
-                        ),
-                      ],
-                    ),
-                  ],
+                      // ── Personal ───────────────────────────
+                      _InfoCard(
+                        title: 'Personal',
+                        icon: Icons.badge_outlined,
+                        items: [
+                          _InfoItem(label: 'Phone', value: user.phone ?? '-'),
+                          _InfoItem(
+                            label: 'Gender',
+                            value: _capitalize(user.gender ?? '-'),
+                          ),
+                          _InfoItem(
+                            label: 'Age',
+                            value: user.age != null ? '${user.age} years' : '-',
+                          ),
+                          _InfoItem(
+                            label: 'Birth Date',
+                            value: user.birthDate ?? '-',
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppDimensions.md),
+
+                      // ── Address ────────────────────────────
+                      _InfoCard(
+                        title: 'Address',
+                        icon: Icons.location_on_outlined,
+                        items: [
+                          _InfoItem(
+                            label: 'Street',
+                            value: user.addressStreet ?? '-',
+                          ),
+                          _InfoItem(
+                            label: 'City',
+                            value: user.addressCity ?? '-',
+                          ),
+                          _InfoItem(
+                            label: 'State',
+                            value: user.addressState ?? '-',
+                          ),
+                          _InfoItem(
+                            label: 'Country',
+                            value: user.addressCountry ?? '-',
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppDimensions.md),
+
+                      // ── Company ────────────────────────────
+                      _InfoCard(
+                        title: 'Company',
+                        icon: Icons.business_outlined,
+                        items: [
+                          _InfoItem(
+                            label: 'Name',
+                            value: user.companyName ?? '-',
+                          ),
+                          _InfoItem(
+                            label: 'Department',
+                            value: user.companyDepartment ?? '-',
+                          ),
+                          _InfoItem(
+                            label: 'Title',
+                            value: user.companyTitle ?? '-',
+                          ),
+                          _InfoItem(
+                            label: 'University',
+                            value: user.university ?? '-',
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppDimensions.lg),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       }),
@@ -89,7 +142,7 @@ class ProfileView extends GetView<ProfileController> {
       text.isEmpty ? text : text[0].toUpperCase() + text.substring(1);
 }
 
-// ── Header Widget ────────────────────────────────────────────
+// ── Header ────────────────────────────────────────────────────
 class _ProfileHeader extends StatelessWidget {
   final UserModel user;
 
@@ -108,7 +161,6 @@ class _ProfileHeader extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Avatar
           CircleAvatar(
             radius: 48,
             backgroundColor: AppColors.primary.withValues(alpha: 0.15),
@@ -119,34 +171,17 @@ class _ProfileHeader extends StatelessWidget {
                       width: 96,
                       height: 96,
                       fit: BoxFit.cover,
-
                       placeholder: (context, url) =>
                           const CircularProgressIndicator.adaptive(),
-                      errorWidget: (context, url, error) => Text(
-                        user.firstName.substring(0, 1).toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 36,
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      errorWidget: (context, url, error) =>
+                          _avatarFallback(user),
                     ),
                   )
-                : Text(
-                    user.firstName.substring(0, 1).toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 36,
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                : _avatarFallback(user),
           ),
           const SizedBox(height: AppDimensions.md),
-
-          // Name
           Text(user.fullName, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppDimensions.xs),
-
           // Username badge
           Container(
             padding: const EdgeInsets.symmetric(
@@ -170,14 +205,28 @@ class _ProfileHeader extends StatelessWidget {
       ),
     );
   }
+
+  Widget _avatarFallback(UserModel user) => Text(
+    user.firstName.substring(0, 1).toUpperCase(),
+    style: const TextStyle(
+      fontSize: 36,
+      color: AppColors.primary,
+      fontWeight: FontWeight.bold,
+    ),
+  );
 }
 
-// ── Info Card Widget ─────────────────────────────────────────
+// ── Info Card ─────────────────────────────────────────────────
 class _InfoCard extends StatelessWidget {
   final String title;
+  final IconData icon;
   final List<_InfoItem> items;
 
-  const _InfoCard({required this.title, required this.items});
+  const _InfoCard({
+    required this.title,
+    required this.icon,
+    required this.items,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -187,10 +236,43 @@ class _InfoCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: AppDimensions.sm),
-            const Divider(),
-            ...items,
+            Row(
+              children: [
+                Icon(icon, size: 18, color: AppColors.primary),
+                const SizedBox(width: AppDimensions.xs),
+                Text(title, style: Theme.of(context).textTheme.titleMedium),
+              ],
+            ),
+            const Divider(height: AppDimensions.lg),
+            ...items.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: AppDimensions.sm),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 100,
+                      child: Text(
+                        item.label,
+                        style: const TextStyle(
+                          fontSize: AppDimensions.fontSm,
+                          color: AppColors.grey500,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        item.value,
+                        style: const TextStyle(
+                          fontSize: AppDimensions.fontSm,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -198,57 +280,10 @@ class _InfoCard extends StatelessWidget {
   }
 }
 
-// ── Info Item Widget ─────────────────────────────────────────
-class _InfoItem extends StatelessWidget {
-  final IconData icon;
+// ── Info Item ─────────────────────────────────────────────────
+class _InfoItem {
   final String label;
   final String value;
 
-  const _InfoItem({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppDimensions.sm),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(AppDimensions.sm),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-            ),
-            child: Icon(icon, size: 18, color: AppColors.primary),
-          ),
-          const SizedBox(width: AppDimensions.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: AppDimensions.fontXs,
-                    color: AppColors.grey500,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: AppDimensions.fontMd,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  const _InfoItem({required this.label, required this.value});
 }

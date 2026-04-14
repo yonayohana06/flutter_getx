@@ -94,6 +94,15 @@ class AppTheme {
         borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
       ),
     ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: AppColors.white,
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return TextStyle(color: AppColors.black, fontWeight: FontWeight.w600);
+        }
+        return TextStyle(color: AppColors.grey700);
+      }),
+    ),
   );
 
   static ThemeData get darkTheme => ThemeData(
@@ -149,6 +158,16 @@ class AppTheme {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
       ),
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: AppColors.bgDark,
+
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return TextStyle(color: AppColors.white, fontWeight: FontWeight.w600);
+        }
+        return TextStyle(color: AppColors.grey300);
+      }),
     ),
   );
 }

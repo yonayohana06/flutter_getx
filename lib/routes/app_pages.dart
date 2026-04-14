@@ -1,5 +1,3 @@
-import 'package:flutter_getx/modules/splash/bindings/splash_binding.dart';
-import 'package:flutter_getx/modules/splash/views/splash_view.dart';
 import 'package:get/get.dart';
 import '../app/middlewares/auth_middleware.dart';
 import '../modules/auth/bindings/auth_binding.dart';
@@ -7,8 +5,12 @@ import '../modules/auth/views/login_view.dart';
 import '../modules/auth/views/register_view.dart';
 import '../modules/dashboard/bindings/dashboard_binding.dart';
 import '../modules/dashboard/views/dashboard_view.dart';
+import '../modules/product_detail/bindings/product_detail_binding.dart';
+import '../modules/product_detail/views/product_detail_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
+import '../modules/splash/bindings/splash_binding.dart';
+import '../modules/splash/views/splash_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -42,6 +44,13 @@ class AppPages {
       name: AppRoutes.PROFILE,
       page: () => const ProfileView(),
       binding: ProfileBinding(),
+      middlewares: [AuthMiddleware()],
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.PRODUCT_DETAIL,
+      page: () => const ProductDetailView(),
+      binding: ProductDetailBinding(),
       middlewares: [AuthMiddleware()],
       transition: Transition.rightToLeft,
     ),

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_getx/data/repositories/auth_repository_base.dart';
 import 'package:get/get.dart';
@@ -17,7 +15,6 @@ class AuthService extends GetxService {
 
   // Dipanggil di SplashController saat app start
   Future<void> init() async {
-    log('init auth');
     final userData = Get.find<StorageService>().userData;
     if (userData != null) {
       currentUser.value = UserModel.fromJson(userData);

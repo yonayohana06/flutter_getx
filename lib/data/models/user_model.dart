@@ -7,6 +7,23 @@ class UserModel {
   final String? image;
   final String? phone;
   final String? gender;
+  final String? birthDate;
+  final int? age;
+
+  // Address
+  final String? addressStreet;
+  final String? addressCity;
+  final String? addressState;
+  final String? addressCountry;
+
+  // Company
+  final String? companyName;
+  final String? companyDepartment;
+  final String? companyTitle;
+
+  // Extra
+  final String? university;
+  final String? role;
 
   const UserModel({
     required this.id,
@@ -17,20 +34,58 @@ class UserModel {
     this.image,
     this.phone,
     this.gender,
+    this.birthDate,
+    this.age,
+    this.addressStreet,
+    this.addressCity,
+    this.addressState,
+    this.addressCountry,
+    this.companyName,
+    this.companyDepartment,
+    this.companyTitle,
+    this.university,
+    this.role,
   });
 
   String get fullName => '$firstName $lastName';
 
-  factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
-    id: json['id'] as int,
-    username: json['username'] as String? ?? '',
-    firstName: json['firstName'] as String? ?? '',
-    lastName: json['lastName'] as String? ?? '',
-    email: json['email'] as String? ?? '',
-    image: json['image'] as String?,
-    phone: json['phone'] as String?,
-    gender: json['gender'] as String?,
-  );
+  String get fullAddress {
+    final parts = [
+      addressStreet,
+      addressCity,
+      addressState,
+      addressCountry,
+    ].where((e) => e != null && e.isNotEmpty).toList();
+    return parts.isNotEmpty ? parts.join(', ') : '-';
+  }
+
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    final address = json['address'] as Map<String, dynamic>?;
+    final company = json['company'] as Map<String, dynamic>?;
+    // final companyAddress = company?['address'] as Map<String, dynamic>?;
+
+    return UserModel(
+      id: json['id'] as int,
+      username: json['username'] as String? ?? '',
+      firstName: json['firstName'] as String? ?? '',
+      lastName: json['lastName'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      image: json['image'] as String?,
+      phone: json['phone'] as String?,
+      gender: json['gender'] as String?,
+      birthDate: json['birthDate'] as String?,
+      age: json['age'] as int?,
+      addressStreet: address?['address'] as String?,
+      addressCity: address?['city'] as String?,
+      addressState: address?['state'] as String?,
+      addressCountry: address?['country'] as String?,
+      companyName: company?['name'] as String?,
+      companyDepartment: company?['department'] as String?,
+      companyTitle: company?['title'] as String?,
+      university: json['university'] as String?,
+      role: json['role'] as String?,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -41,6 +96,17 @@ class UserModel {
     'image': image,
     'phone': phone,
     'gender': gender,
+    'birthDate': birthDate,
+    'age': age,
+    'addressStreet': addressStreet,
+    'addressCity': addressCity,
+    'addressState': addressState,
+    'addressCountry': addressCountry,
+    'companyName': companyName,
+    'companyDepartment': companyDepartment,
+    'companyTitle': companyTitle,
+    'university': university,
+    'role': role,
   };
 
   UserModel copyWith({
@@ -52,6 +118,17 @@ class UserModel {
     String? image,
     String? phone,
     String? gender,
+    String? birthDate,
+    int? age,
+    String? addressStreet,
+    String? addressCity,
+    String? addressState,
+    String? addressCountry,
+    String? companyName,
+    String? companyDepartment,
+    String? companyTitle,
+    String? university,
+    String? role,
   }) => UserModel(
     id: id ?? this.id,
     username: username ?? this.username,
@@ -61,6 +138,17 @@ class UserModel {
     image: image ?? this.image,
     phone: phone ?? this.phone,
     gender: gender ?? this.gender,
+    birthDate: birthDate ?? this.birthDate,
+    age: age ?? this.age,
+    addressStreet: addressStreet ?? this.addressStreet,
+    addressCity: addressCity ?? this.addressCity,
+    addressState: addressState ?? this.addressState,
+    addressCountry: addressCountry ?? this.addressCountry,
+    companyName: companyName ?? this.companyName,
+    companyDepartment: companyDepartment ?? this.companyDepartment,
+    companyTitle: companyTitle ?? this.companyTitle,
+    university: university ?? this.university,
+    role: role ?? this.role,
   );
 
   @override
@@ -72,8 +160,6 @@ class UserModel {
   int get hashCode => id.hashCode;
 }
 
-// DummyJSON login response structure:
-// { id, username, email, firstName, lastName, gender, image, accessToken, refreshToken }
 class AuthResponse {
   final String accessToken;
   final String refreshToken;
