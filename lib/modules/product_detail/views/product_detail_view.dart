@@ -122,7 +122,9 @@ class ProductDetailView extends GetView<ProductDetailController> {
                                     color:
                                         ctrl.selectedImageIndex.value == index
                                         ? AppColors.primary
-                                        : Colors.white.withValues(alpha: 0.6),
+                                        : AppColors.primaryLight.withValues(
+                                            alpha: 0.6,
+                                          ),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                 ),
